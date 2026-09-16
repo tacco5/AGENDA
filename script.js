@@ -12,6 +12,10 @@ let afazeres = JSON.parse(
     localStorage.getItem("agendaAfazeres")
 ) || [];
 
+let cidades = JSON.parse(
+    localStorage.getItem("agendaCidades")
+) || [];
+
 
 // ==========================================
 // INICIALIZAÇÃO
@@ -22,6 +26,8 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("dataAgenda").value = dataAtual;
 
     atualizarTextoData();
+
+    carregarCidades();
 
     renderizarSolicitacoes();
 
@@ -198,6 +204,92 @@ function fecharModalSolicitacao() {
 }
 
 
+function adicionarCidade() {
+
+    const select = document.getElementById("cidade");
+
+    if (select.value !== "__adicionar__") {
+        return;
+    }
+
+    const novaCidade = prompt("Digite o nome da cidade:");
+
+    if (!novaCidade || !novaCidade.trim()) {
+        select.value = "";
+        return;
+    }
+
+    const cidade = novaCidade.trim();
+    const opcao = document.createElement("option");
+
+    opcao.value = cidade;
+    opcao.textContent = cidade;
+
+    select.insertBefore(opcao, select.lastElementChild);
+    select.value = cidade;
+
+    if (!cidades.includes(cidade)) {
+        cidades.push(cidade);
+        localStorage.setItem("agendaCidades", JSON.stringify(cidades));
+    }
+
+    atualizarFiltroCidades();
+
+}
+
+
+function carregarCidades() {
+
+    const select = document.getElementById("cidade");
+
+    cidades.forEach(cidade => {
+
+        if ([...select.options].some(opcao => opcao.value === cidade)) {
+            return;
+        }
+
+        const opcao = document.createElement("option");
+        opcao.value = cidade;
+        opcao.textContent = cidade;
+        select.insertBefore(opcao, select.lastElementChild);
+
+    });
+
+    atualizarFiltroCidades();
+
+}
+
+
+function atualizarFiltroCidades() {
+
+    const filtroCidade = document.getElementById("filtroCidade");
+
+    if (!filtroCidade) {
+        return;
+    }
+
+    const cidadeSelecionada = filtroCidade.value;
+    const cidadesRegistros = solicitacoes
+        .map(item => item.cidade)
+        .filter(Boolean);
+    const todasCidades = [...new Set([...cidades, ...cidadesRegistros])].sort();
+
+    filtroCidade.innerHTML = '<option value="todas">Todas as cidades</option>';
+
+    todasCidades.forEach(cidade => {
+        const opcao = document.createElement("option");
+        opcao.value = cidade;
+        opcao.textContent = cidade;
+        filtroCidade.appendChild(opcao);
+    });
+
+    filtroCidade.value = todasCidades.includes(cidadeSelecionada)
+        ? cidadeSelecionada
+        : "todas";
+
+}
+
+
 function salvarSolicitacao(event) {
 
     event.preventDefault();
@@ -206,17 +298,16 @@ function salvarSolicitacao(event) {
     const id =
         document.getElementById("idSolicitacao").value;
 
-    const codigo =
-        document.getElementById("codigoSolicitacao").value.trim();
+    const dados = {
+        data: dataAtual,
+        codigo: document.getElementById("codigoSolicitacao").value.trim(),
+        cidade: document.getElementById("cidade").value,
+        procedimento: document.getElementById("procedimento").value.trim(),
+        status: document.getElementById("statusSolicitacao").value
+    };
 
-    const procedimento =
-        document.getElementById("procedimento").value.trim();
 
-    const status =
-        document.getElementById("statusSolicitacao").value;
-
-
-    if (!codigo || !procedimento || !status) {
+    if (!dados.codigo || !dados.cidade || !dados.procedimento || !dados.status) {
         return;
     }
 
@@ -228,11 +319,13 @@ function salvarSolicitacao(event) {
 
         if (solicitacao) {
 
-            solicitacao.codigo = codigo;
+            solicitacao.codigo = dados.codigo;
 
-            solicitacao.procedimento = procedimento;
+            solicitacao.cidade = dados.cidade;
 
-            solicitacao.status = status;
+            solicitacao.procedimento = dados.procedimento;
+
+            solicitacao.status = dados.status;
 
         }
 
@@ -242,13 +335,7 @@ function salvarSolicitacao(event) {
 
             id: Date.now(),
 
-            data: dataAtual,
-
-            codigo: codigo,
-
-            procedimento: procedimento,
-
-            status: status
+            ...dados
 
         };
 
@@ -258,6 +345,8 @@ function salvarSolicitacao(event) {
 
 
     salvarDados();
+
+    atualizarFiltroCidades();
 
     renderizarSolicitacoes();
 
@@ -283,6 +372,9 @@ function renderizarSolicitacoes() {
     const filtro =
         document.getElementById("filtroStatus").value;
 
+    const filtroCidade =
+        document.getElementById("filtroCidade").value;
+
 
     let registros =
         solicitacoes.filter(item => item.data === dataAtual);
@@ -294,6 +386,8 @@ function renderizarSolicitacoes() {
         registros = registros.filter(item =>
 
             item.codigo.toLowerCase().includes(pesquisa) ||
+
+            (item.cidade || "").toLowerCase().includes(pesquisa) ||
 
             item.procedimento.toLowerCase().includes(pesquisa)
 
@@ -307,6 +401,12 @@ function renderizarSolicitacoes() {
 
         registros =
             registros.filter(item => item.status === filtro);
+
+    }
+
+    if (filtroCidade !== "todas") {
+
+        registros = registros.filter(item => item.cidade === filtroCidade);
 
     }
 
@@ -335,6 +435,10 @@ function renderizarSolicitacoes() {
 
             <td>
                 <strong>${escaparHTML(item.codigo)}</strong>
+            </td>
+
+            <td>
+                ${escaparHTML(item.cidade || "")}
             </td>
 
             <td>
@@ -467,6 +571,9 @@ function editarSolicitacao(id) {
     document.getElementById("codigoSolicitacao").value =
         item.codigo;
 
+    document.getElementById("cidade").value =
+        item.cidade || "";
+
     document.getElementById("procedimento").value =
         item.procedimento;
 
@@ -506,6 +613,8 @@ function excluirSolicitacao(id) {
 
 
     salvarDados();
+
+    atualizarFiltroCidades();
 
     renderizarSolicitacoes();
 

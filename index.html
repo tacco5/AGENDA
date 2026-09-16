@@ -168,6 +168,16 @@
 
                     </div>
 
+                    <div class="filter-box">
+
+                        <i class="fa-solid fa-city"></i>
+
+                        <select id="filtroCidade" onchange="renderizarSolicitacoes()">
+                            <option value="todas">Todas as cidades</option>
+                        </select>
+
+                    </div>
+
                 </div>
 
 
@@ -180,6 +190,7 @@
 
                             <tr>
                                 <th>Código de solicitação</th>
+                                <th>Cidade</th>
                                 <th>Status</th>
                                 <th>Procedimento</th>
                                 <th class="acoes-column">Ações</th>
@@ -324,10 +335,32 @@
                     <input
                         type="text"
                         id="codigoSolicitacao"
-                        placeholder="Ex: SOL-000001"
+                        placeholder="Ex: xxxxxxxxx"
                         required>
 
                 </div>
+
+                <div class="form-group">
+            <label for="cidade">Cidade</label>
+
+        <select id="cidade" onchange="adicionarCidade()" required>
+            <option value="">Selecione a cidade</option>
+            <option value="Campos de Júlio">Campos de Júlio</option>
+            <option value="Comodoro">Comodoro</option>
+            <option value="Conquista d'Oeste">Conquista d'Oeste</option>
+            <option value="Figueirópolis">Figueirópolis</option>
+            <option value="HVG">HVG</option>
+            <option value="Jauru">Jauru</option>
+            <option value="Nova Lacerda">Nova Lacerda</option>
+            <option value="Pontes e Lacerda">Pontes e Lacerda</option>
+            <option value="Vale de São Domingos">Vale de São Domingos</option>
+            <option value="Vila Bela">Vila Bela</option>
+            <option value="__adicionar__">+ Adicionar cidade</option>
+        </select>
+    </div>
+
+
+
 
 
                 <div class="form-group">
