@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Agenda</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Ícones -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- MENU LATERAL -->
+        <aside class="sidebar">
+
+            <div class="logo">
+                <i class="fa-regular fa-calendar-days"></i>
+                <span>Agenda</span>
+            </div>
+
+            <nav>
+
+                <button class="menu-item active" onclick="mostrarPagina('solicitacoes', this)">
+                    <i class="fa-regular fa-file-lines"></i>
+                    <span>Solicitações</span>
+                </button>
+
+                <button class="menu-item" onclick="mostrarPagina('afazeres', this)">
+                    <i class="fa-regular fa-square-check"></i>
+                    <span>Afazeres</span>
+                </button>
+
+            </nav>
+
+        </aside>
+
+
+        <!-- CONTEÚDO -->
+        <main class="main">
+
+            <!-- CABEÇALHO -->
+            <header class="topbar">
+
+                <div class="mobile-title">
+                    <i class="fa-regular fa-calendar-days"></i>
+                    Agenda
+                </div>
+
+                <div class="date-selector">
+
+                    <button onclick="mudarDia(-1)" title="Dia anterior">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+
+                    <i class="fa-regular fa-calendar"></i>
+
+                    <input type="date" id="dataAgenda" onchange="alterarData()">
+
+                    <button onclick="mudarDia(1)" title="Próximo dia">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+
+                </div>
+
+                <div class="top-buttons">
+
+                    <button id="btnSolicitacoes"
+                        class="top-button active"
+                        onclick="mostrarPagina('solicitacoes')">
+
+                        <i class="fa-regular fa-file-lines"></i>
+                        Solicitações
+
+                    </button>
+
+                    <button id="btnAfazeres"
+                        class="top-button"
+                        onclick="mostrarPagina('afazeres')">
+
+                        <i class="fa-regular fa-square-check"></i>
+                        Afazeres
+
+                    </button>
+
+                </div>
+
+            </header>
+
+
+            <!-- ============================= -->
+            <!-- PÁGINA DE SOLICITAÇÕES -->
+            <!-- ============================= -->
+
+            <section id="paginaSolicitacoes" class="pagina">
+
+                <div class="page-title">
+
+                    <div class="title-icon">
+                        <i class="fa-regular fa-file-lines"></i>
+                    </div>
+
+                    <div>
+                        <h1>Solicitações</h1>
+
+                        <p>
+                            Gerencie suas solicitações, adicione, edite e remova registros.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <!-- FILTROS -->
+                <div class="toolbar">
+
+                    <button class="btn-primary" onclick="abrirModalSolicitacao()">
+                        <i class="fa-solid fa-plus"></i>
+                        Adicionar Solicitação
+                    </button>
+
+                    <div class="search-box">
+
+                        <i class="fa-solid fa-magnifying-glass"></i>
+
+                        <input
+                            type="text"
+                            id="pesquisa"
+                            placeholder="Buscar por código, procedimento..."
+                            oninput="renderizarSolicitacoes()">
+
+                    </div>
+
+                    <div class="filter-box">
+
+                        <i class="fa-solid fa-filter"></i>
+
+                        <select id="filtroStatus" onchange="renderizarSolicitacoes()">
+
+                            <option value="todos">
+                                Todos os status
+                            </option>
+
+                            <option value="Autorizado">
+                                Autorizado
+                            </option>
+
+                            <option value="Código interno inválido">
+                                Código interno inválido
+                            </option>
+
+                            <option value="Pendente">
+                                Pendente
+                            </option>
+
+                            <option value="Reenviar">
+                                Reenviar
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <!-- TABELA -->
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Código de solicitação</th>
+                                <th>Status</th>
+                                <th>Procedimento</th>
+                                <th class="acoes-column">Ações</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="tabelaSolicitacoes"></tbody>
+
+                    </table>
+
+                    <div id="semSolicitacoes" class="empty">
+                        <i class="fa-regular fa-folder-open"></i>
+                        <h3>Nenhuma solicitação encontrada</h3>
+                        <p>Adicione uma solicitação para começar.</p>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ============================= -->
+            <!-- PÁGINA DE AFAZERES -->
+            <!-- ============================= -->
+
+            <section id="paginaAfazeres" class="pagina hidden">
+
+                <div class="page-title">
+
+                    <div class="title-icon">
+                        <i class="fa-regular fa-square-check"></i>
+                    </div>
+
+                    <div>
+                        <h1>Afazeres</h1>
+
+                        <p>
+                            Organize suas tarefas e compromissos.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="task-header">
+
+                    <div>
+                        <h2>
+                            <i class="fa-regular fa-calendar-check"></i>
+                            Afazeres do dia
+                        </h2>
+
+                        <p id="textoDataAfazeres"></p>
+                    </div>
+
+                    <button class="btn-primary" onclick="abrirModalAfazer()">
+                        <i class="fa-solid fa-plus"></i>
+                        Adicionar Afazer
+                    </button>
+
+                </div>
+
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+                                <th>Descrição</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                                <th class="acoes-column">Ações</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="tabelaAfazeres"></tbody>
+
+                    </table>
+
+                    <div id="semAfazeres" class="empty">
+
+                        <i class="fa-regular fa-clipboard"></i>
+
+                        <h3>Nenhum afazer cadastrado</h3>
+
+                        <p>
+                            Clique em "Adicionar Afazer" para criar uma tarefa.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <!-- ================================= -->
+    <!-- MODAL SOLICITAÇÃO -->
+    <!-- ================================= -->
+
+    <div id="modalSolicitacao" class="modal">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <div>
+                    <h2 id="tituloModalSolicitacao">
+                        Adicionar Solicitação
+                    </h2>
+
+                    <p>
+                        Preencha os dados da solicitação.
+                    </p>
+                </div>
+
+                <button class="close" onclick="fecharModalSolicitacao()">
+                    &times;
+                </button>
+
+            </div>
+
+
+            <form id="formSolicitacao" onsubmit="salvarSolicitacao(event)">
+
+                <input type="hidden" id="idSolicitacao">
+
+                <div class="form-group">
+
+                    <label>
+                        Código de solicitação
+                    </label>
+
+                    <input
+                        type="text"
+                        id="codigoSolicitacao"
+                        placeholder="Ex: SOL-000001"
+                        required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Procedimento
+                    </label>
+
+                    <input
+                        type="text"
+                        id="procedimento"
+                        placeholder="Digite o procedimento"
+                        required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Status
+                    </label>
+
+                    <select id="statusSolicitacao" required>
+
+                        <option value="">
+                            Selecione o status
+                        </option>
+
+                        <option value="Autorizado">
+                            Autorizado
+                        </option>
+
+                        <option value="Código interno inválido">
+                            Código interno inválido
+                        </option>
+
+                        <option value="Pendente">
+                            Pendente
+                        </option>
+
+                        <option value="Reenviar">
+                            Reenviar
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="modal-actions">
+
+                    <button type="button"
+                        class="btn-secondary"
+                        onclick="fecharModalSolicitacao()">
+
+                        Cancelar
+
+                    </button>
+
+                    <button type="submit" class="btn-primary">
+
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Salvar
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================= -->
+    <!-- MODAL AFAZER -->
+    <!-- ================================= -->
+
+    <div id="modalAfazer" class="modal">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <h2 id="tituloModalAfazer">
+                        Adicionar Afazer
+                    </h2>
+
+                    <p>
+                        Cadastre uma nova tarefa.
+                    </p>
+
+                </div>
+
+                <button class="close" onclick="fecharModalAfazer()">
+                    &times;
+                </button>
+
+            </div>
+
+
+            <form id="formAfazer" onsubmit="salvarAfazer(event)">
+
+                <input type="hidden" id="idAfazer">
+
+
+                <div class="form-group">
+
+                    <label>
+                        Descrição
+                    </label>
+
+                    <input
+                        type="text"
+                        id="descricaoAfazer"
+                        placeholder="Ex: Ligar para paciente"
+                        required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Data
+                    </label>
+
+                    <input
+                        type="date"
+                        id="dataAfazer"
+                        required>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label>
+                        Status
+                    </label>
+
+                    <select id="statusAfazer" required>
+
+                        <option value="Pendente">
+                            Pendente
+                        </option>
+
+                        <option value="Em andamento">
+                            Em andamento
+                        </option>
+
+                        <option value="Concluído">
+                            Concluído
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="modal-actions">
+
+                    <button type="button"
+                        class="btn-secondary"
+                        onclick="fecharModalAfazer()">
+
+                        Cancelar
+
+                    </button>
+
+                    <button type="submit" class="btn-primary">
+
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Salvar
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- JAVASCRIPT -->
+    <script src="script.js"></script>
+
+</body>
+
+</html>
